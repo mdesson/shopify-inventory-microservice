@@ -25,6 +25,7 @@ export const handler: SQSHandler = async (event: SQSEvent): Promise<void> => {
     const op: Operation = msg.operation;
 
     // Process message by operation
+    // Error intentionally thrown so as to bubble up to Dead Letter queue
     if (op === Operation.Increment) {
       const { data }: { data: IInventoryLevelIncrementReq } = msg;
       await incrementInventoryLevel(data);
@@ -38,7 +39,10 @@ export const handler: SQSHandler = async (event: SQSEvent): Promise<void> => {
       const { data }: { data: IInventoryLevelConnectReq } = msg;
       await connectInventoryToLocation(data);
     } else {
-      console.info('Invalid operation');
+      // Fallthrough condition, invalid operation error
+      const e = new Error(`Operation ${op} not supported`);
+      e.name = 'OperationNotSupportedError';
+      throw e;
     }
   }
 };
