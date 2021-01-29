@@ -108,3 +108,4 @@ Message are ending up in the dead letter queue inconsistently, and very slowly.
 - SNS Error Notifier
 - Coordinator
 - Throttle State
+- KMS to hide API secrets

@@ -6,6 +6,6 @@
   "dependencies": {
     "@types/aws-lambda": "^8.10.71",
     "@types/node": "^14.14.22",
-    "axios": "^0.21.1"
+    "aws-sdk": "^2.833.0"
   }
 }
