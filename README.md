@@ -56,8 +56,6 @@ The way the throttle works is:
     - Clear `sentQty` and set to 0
     - Send message to worker
 
-![](img/architecture.png)
-
 ## Throttling Design Comparisons
 
 ### Pros and Cons of Current Design
