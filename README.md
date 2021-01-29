@@ -9,8 +9,8 @@ A simple proof of concept microservice for handling Shopify inventory management
 If fully implemented, the way this microservice would work is:
 
 - A service sends a request to the Work Queue containing an inventory update
-- The Coordinator dequeues messages and hold and release them at a rate that prevents exceeding the API limit, using elasticache to store throttle state
-- The messages are released to the lambdas who hit the shopify API
+- The Coordinator dequeues messages and hold and release them to SNS at a rate that prevents exceeding the API limit, using elasticache to store throttle state
+- The worker lambdas pick up the messages from the SNS notification and hit the shopify API
 
 ![](img/architecture.png)
 
@@ -20,6 +20,7 @@ A dead letter queue in SQS connected to an Error Notifier in SNS take care of no
 
 - If the coordinator fails, the work queue will send error state to the DLQ
 - If the lambdas fail they will send their error state to the dead letter queue
+- The dead letter queue is connected to an SNS topic which will broadcast the error to all subscribers
 
 This service explicitly does not handle its own errors, beyond a set number of retry attempts. Should a job fail repeatedly, the services are notified and it is up to them if they wish to keep trying or revert to their initial state and alert a client or another service.
 
@@ -99,13 +100,12 @@ The microservice is not done. The following components are missing or not functi
 
 ### The Deadletter Queue
 
-When errors are thrown, the error metadata is not be added by SQS or Lambda, such as the error name, staktrace, etc.
+When errors are thrown, the error metadata is not be added by SQS or Lambda, such as the error name, stacktrace, etc.
 
 Message are ending up in the dead letter queue inconsistently, and very slowly.
 
 ### Not implemented:
 
-- SNS Error Notifier
-- Coordinator
 - Throttle State
 - KMS to hide API secrets
+- Worker connection to dead letter queue (possible fifo queue limitation)
